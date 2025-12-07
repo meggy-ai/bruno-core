@@ -1,3 +1,74 @@
+# meggy-ai
+┌─────────────────────────────────────────┐
+│         5. bruno-pa                     │  ← Applications (depends on everything)
+│      (Personal Assistant)               │
+└─────────────────────────────────────────┘
+                  ▲
+                  │ depends on
+    ┌─────────────┼─────────────┬──────────┐
+    │             │             │          │
+┌───┴────┐  ┌────┴─────┐  ┌────┴────┐ ┌──┴─────────┐
+│   3a.  │  │   3b.    │  │   3c.   │ │    4.      │
+│ bruno- │  │  bruno-  │  │ bruno-  │ │  bruno-    │
+│  llm   │  │  memory  │  │abilities│ │   docs     │
+└────────┘  └──────────┘  └─────────┘ └────────────┘
+    ▲            ▲             ▲            │
+    │            │             │            │
+    └────────────┴─────────────┴────────────┘
+                  │ all depend on
+            ┌─────┴──────┐
+            │     1.     │
+            │  bruno-    │  ← Foundation (no dependencies)
+            │   core     │
+            └────────────┘
+                  ▲
+                  │ (optional: start here)
+            ┌─────┴──────┐
+            │     2.     │
+            │  bruno-    │  ← Examples & templates
+            │ templates  │
+            └────────────┘
+
+bruno-llm/
+├── clients/
+│   ├── ollama.py      # Your local LLM
+│   ├── claude.py      # Anthropic
+│   └── openai.py      # OpenAI
+├── factory.py         # LLMFactory
+└── utils/
+    └── token_counter.py
+
+bruno-memory/
+├── backends/
+│   ├── sqlite.py      # Simple file-based
+│   ├── redis.py       # Fast in-memory
+│   └── postgres.py    # Production-grade
+├── conversation_manager.py
+├── context_compressor.py
+└── memory_retriever.py
+
+bruno-abilities/
+├── timer/
+│   └── timer_ability.py
+├── alarm/
+│   └── alarm_ability.py
+├── notes/
+│   └── notes_ability.py
+└── weather/
+    └── weather_ability.py
+
+bruno-pa/
+├── interfaces/
+│   ├── voice/
+│   │   └── main.py          # Your existing voice code
+│   ├── text/
+│   │   └── bruno_text.py    # Your existing text code
+│   └── discord/
+│       └── discord_bot.py   # Your existing Discord code
+├── config/
+│   └── settings.py
+└── run.py                   # Entry point
+
 # bruno-core
 bruno core
 
