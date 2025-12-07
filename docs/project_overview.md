@@ -2,8 +2,8 @@
 
 ## Status: ALL 9 PHASES COMPLETED ✅
 
-**Completion Date:** December 8, 2025  
-**Total Implementation Time:** ~20 hours across all phases  
+**Completion Date:** December 8, 2025
+**Total Implementation Time:** ~20 hours across all phases
 **Package Version:** 0.1.0-alpha (ready for release)
 
 ---
@@ -116,7 +116,7 @@ from bruno_core.base import BaseAbility
 class MyAbility(BaseAbility):
     def get_metadata(self):
         return AbilityMetadata(name="my-ability", ...)
-    
+
     async def execute_action(self, request):
         # Your implementation
         return AbilityResponse(...)
