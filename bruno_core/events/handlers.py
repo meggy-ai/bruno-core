@@ -23,7 +23,7 @@ class EventHandler(ABC):
         >>> class MessageLogger(EventHandler):
         ...     def get_event_types(self):
         ...         return [EventType.MESSAGE_RECEIVED]
-        ...     
+        ...
         ...     def handle(self, event):
         ...         print(f"Message: {event.message_id}")
     """
@@ -107,7 +107,7 @@ class AsyncEventHandler(ABC):
         >>> class MessageProcessor(AsyncEventHandler):
         ...     def get_event_types(self):
         ...         return [EventType.MESSAGE_RECEIVED]
-        ...     
+        ...
         ...     async def handle(self, event):
         ...         await process_message(event.message_id)
     """

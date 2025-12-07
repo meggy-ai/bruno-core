@@ -56,18 +56,25 @@ setup(
     ],
     extras_require={
         "dev": [
+            "black>=23.0.0",
+            "isort>=5.12.0",
+            "flake8>=6.0.0",
+            "pylint>=2.17.0",
+            "mypy>=1.0.0",
+            "pre-commit>=3.0.0",
+            "ruff>=0.1.0",
+        ],
+        "test": [
             "pytest>=7.0.0",
             "pytest-asyncio>=0.21.0",
             "pytest-cov>=4.0.0",
-            "black>=23.0.0",
-            "mypy>=1.0.0",
-            "ruff>=0.1.0",
-            "pre-commit>=3.0.0",
+            "pytest-mock>=3.10.0",
         ],
         "docs": [
             "mkdocs>=1.5.0",
             "mkdocs-material>=9.0.0",
             "mkdocstrings[python]>=0.24.0",
+            "mkdocs-autorefs>=0.5.0",
         ],
     },
     entry_points={

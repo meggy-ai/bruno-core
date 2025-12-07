@@ -82,12 +82,12 @@ class StateManager:
                 namespace_dir.mkdir(exist_ok=True)
 
                 state_file = namespace_dir / f"{key}.json"
-                
+
                 # Write atomically
                 temp_file = state_file.with_suffix(".tmp")
                 with open(temp_file, "w", encoding="utf-8") as f:
                     json.dump(value, f, indent=2, ensure_ascii=False)
-                
+
                 temp_file.replace(state_file)
 
             logger.debug("state_set", namespace=namespace, key=key)
@@ -127,7 +127,7 @@ class StateManager:
                 return self._memory_store.get(namespace, {}).get(key, default)
             else:
                 state_file = self.storage_path / namespace / f"{key}.json"
-                
+
                 if not state_file.exists():
                     return default
 
@@ -170,7 +170,7 @@ class StateManager:
                 return False
             else:
                 state_file = self.storage_path / namespace / f"{key}.json"
-                
+
                 if state_file.exists():
                     state_file.unlink()
                     logger.debug("state_deleted", namespace=namespace, key=key)
@@ -201,14 +201,11 @@ class StateManager:
                 return list(self._memory_store.get(namespace, {}).keys())
             else:
                 namespace_dir = self.storage_path / namespace
-                
+
                 if not namespace_dir.exists():
                     return []
 
-                keys = [
-                    f.stem
-                    for f in namespace_dir.glob("*.json")
-                ]
+                keys = [f.stem for f in namespace_dir.glob("*.json")]
                 return keys
 
         except Exception as e:
@@ -235,7 +232,7 @@ class StateManager:
                 return 0
             else:
                 namespace_dir = self.storage_path / namespace
-                
+
                 if not namespace_dir.exists():
                     return 0
 
@@ -269,11 +266,7 @@ class StateManager:
                 if not self.storage_path.exists():
                     return []
 
-                namespaces = [
-                    d.name
-                    for d in self.storage_path.iterdir()
-                    if d.is_dir()
-                ]
+                namespaces = [d.name for d in self.storage_path.iterdir() if d.is_dir()]
                 return namespaces
 
         except Exception as e:
@@ -298,7 +291,7 @@ class StateManager:
             else:
                 namespaces = 0
                 total_keys = 0
-                
+
                 if self.storage_path.exists():
                     for namespace_dir in self.storage_path.iterdir():
                         if namespace_dir.is_dir():

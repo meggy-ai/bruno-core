@@ -54,7 +54,7 @@ class PluginRegistry(ABC):
         >>> class MyRegistry(PluginRegistry):
         ...     def get_entry_point_group(self):
         ...         return "my_app.plugins"
-        ...     
+        ...
         ...     def validate_plugin(self, plugin_class):
         ...         return issubclass(plugin_class, MyPluginBase)
     """
@@ -99,7 +99,7 @@ class PluginRegistry(ABC):
 
         try:
             entry_points = importlib.metadata.entry_points()
-            
+
             # Handle both dict and list-like entry point objects
             if hasattr(entry_points, "select"):
                 # Python 3.10+ style
@@ -245,11 +245,11 @@ class PluginRegistry(ABC):
         info = self._plugins[name]
         try:
             instance = info.plugin_class(**kwargs)
-            
+
             # Cache if no kwargs (shared instance)
             if not kwargs:
                 self._instances[name] = instance
-            
+
             logger.info("plugin_instantiated", name=name)
             return instance
 

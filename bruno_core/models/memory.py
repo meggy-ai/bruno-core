@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class MemoryType(str, Enum):
@@ -20,6 +20,7 @@ class MemoryType(str, Enum):
     EPISODIC = "episodic"  # Specific events/conversations
     SEMANTIC = "semantic"  # General knowledge
     PROCEDURAL = "procedural"  # How-to knowledge
+    FACT = "fact"  # Factual information
 
 
 class MemoryMetadata(BaseModel):
@@ -46,28 +47,23 @@ class MemoryMetadata(BaseModel):
         ... )
     """
 
-    source: str = Field(..., description="Memory source")
+    source: str = Field(default="unknown", description="Memory source")
     category: Optional[str] = Field(default=None, description="Memory category")
     tags: List[str] = Field(default_factory=list, description="Tags for categorization")
     confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Confidence score")
     importance: float = Field(default=1.0, ge=0.0, le=1.0, description="Importance score")
     access_count: int = Field(default=0, ge=0, description="Access count")
-    embedding: Optional[List[float]] = Field(
-        default=None, description="Vector embedding"
-    )
-    related_memories: List[UUID] = Field(
-        default_factory=list, description="Related memory IDs"
-    )
+    embedding: Optional[List[float]] = Field(default=None, description="Vector embedding")
+    related_memories: List[UUID] = Field(default_factory=list, description="Related memory IDs")
     custom_fields: Dict[str, Any] = Field(
         default_factory=dict, description="Custom metadata fields"
     )
 
-    class Config:
-        """Pydantic model configuration."""
-
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             UUID: lambda v: str(v),
         }
+    )
 
 
 class MemoryEntry(BaseModel):
@@ -107,29 +103,20 @@ class MemoryEntry(BaseModel):
     conversation_id: Optional[str] = Field(
         default=None, description="Conversation ID where created"
     )
-    metadata: MemoryMetadata = Field(
-        default_factory=MemoryMetadata, description="Memory metadata"
-    )
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Creation time"
-    )
-    updated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Last update time"
-    )
-    last_accessed: datetime = Field(
-        default_factory=datetime.utcnow, description="Last access time"
-    )
+    metadata: MemoryMetadata = Field(default_factory=MemoryMetadata, description="Memory metadata")
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation time")
+    updated_at: datetime = Field(default_factory=datetime.utcnow, description="Last update time")
+    last_accessed: datetime = Field(default_factory=datetime.utcnow, description="Last access time")
     expires_at: Optional[datetime] = Field(
         default=None, description="Expiration time (None = no expiration)"
     )
 
-    class Config:
-        """Pydantic model configuration."""
-
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
             UUID: lambda v: str(v),
         }
+    )
 
     def update_access(self) -> None:
         """Update access timestamp and increment access count."""
@@ -178,20 +165,12 @@ class MemoryQuery(BaseModel):
     memory_types: List[MemoryType] = Field(
         default_factory=list, description="Filter by memory types"
     )
-    categories: List[str] = Field(
-        default_factory=list, description="Filter by categories"
-    )
+    categories: List[str] = Field(default_factory=list, description="Filter by categories")
     tags: List[str] = Field(default_factory=list, description="Filter by tags")
-    min_confidence: float = Field(
-        default=0.0, ge=0.0, le=1.0, description="Minimum confidence"
-    )
-    min_importance: float = Field(
-        default=0.0, ge=0.0, le=1.0, description="Minimum importance"
-    )
+    min_confidence: float = Field(default=0.0, ge=0.0, le=1.0, description="Minimum confidence")
+    min_importance: float = Field(default=0.0, ge=0.0, le=1.0, description="Minimum importance")
     limit: int = Field(default=10, ge=1, le=1000, description="Maximum results")
-    include_expired: bool = Field(
-        default=False, description="Include expired memories"
-    )
+    include_expired: bool = Field(default=False, description="Include expired memories")
     similarity_threshold: float = Field(
         default=0.0, ge=0.0, le=1.0, description="Minimum similarity score"
     )

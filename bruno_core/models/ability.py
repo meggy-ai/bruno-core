@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AbilityParameterType(str, Enum):
@@ -51,9 +51,7 @@ class AbilityParameter(BaseModel):
     description: str = Field(..., description="Parameter description")
     required: bool = Field(default=True, description="Whether required")
     default: Optional[Any] = Field(default=None, description="Default value")
-    constraints: Dict[str, Any] = Field(
-        default_factory=dict, description="Validation constraints"
-    )
+    constraints: Dict[str, Any] = Field(default_factory=dict, description="Validation constraints")
 
     def validate_value(self, value: Any) -> bool:
         """
@@ -70,13 +68,9 @@ class AbilityParameter(BaseModel):
             return False
         elif self.param_type == AbilityParameterType.INTEGER and not isinstance(value, int):
             return False
-        elif self.param_type == AbilityParameterType.FLOAT and not isinstance(
-            value, (int, float)
-        ):
+        elif self.param_type == AbilityParameterType.FLOAT and not isinstance(value, (int, float)):
             return False
-        elif self.param_type == AbilityParameterType.BOOLEAN and not isinstance(
-            value, bool
-        ):
+        elif self.param_type == AbilityParameterType.BOOLEAN and not isinstance(value, bool):
             return False
         elif self.param_type == AbilityParameterType.LIST and not isinstance(value, list):
             return False
@@ -177,27 +171,18 @@ class AbilityRequest(BaseModel):
     id: UUID = Field(default_factory=uuid4, description="Unique request identifier")
     ability_name: str = Field(..., min_length=1, description="Ability name")
     action: str = Field(..., min_length=1, description="Action to perform")
-    parameters: Dict[str, Any] = Field(
-        default_factory=dict, description="Action parameters"
-    )
+    parameters: Dict[str, Any] = Field(default_factory=dict, description="Action parameters")
     user_id: str = Field(..., min_length=1, description="User ID")
-    conversation_id: Optional[str] = Field(
-        default=None, description="Conversation ID"
-    )
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata"
-    )
-    timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Request timestamp"
-    )
+    conversation_id: Optional[str] = Field(default=None, description="Conversation ID")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Request timestamp")
 
-    class Config:
-        """Pydantic model configuration."""
-
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
             UUID: lambda v: str(v),
         }
+    )
 
     def get_parameter(self, key: str, default: Any = None) -> Any:
         """Get a parameter value."""
@@ -238,23 +223,18 @@ class AbilityResponse(BaseModel):
     message: Optional[str] = Field(default=None, description="Result message")
     data: Dict[str, Any] = Field(default_factory=dict, description="Result data")
     error: Optional[str] = Field(default=None, description="Error message if failed")
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata"
-    )
-    timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Response timestamp"
-    )
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Response timestamp")
     execution_time_ms: Optional[float] = Field(
         default=None, description="Execution time in milliseconds"
     )
 
-    class Config:
-        """Pydantic model configuration."""
-
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
             UUID: lambda v: str(v),
         }
+    )
 
     def mark_as_failed(self, error: str) -> None:
         """Mark response as failed."""

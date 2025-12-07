@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Any, Dict, Optional
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class MessageRole(str, Enum):
@@ -79,14 +79,13 @@ class Message(BaseModel):
         default=None, description="ID of conversation this belongs to"
     )
 
-    class Config:
-        """Pydantic model configuration."""
-
-        json_encoders = {
+    model_config = ConfigDict(
+        use_enum_values=False,  # Keep enums as enums, not strings
+        json_encoders={
             datetime: lambda v: v.isoformat(),
             UUID: lambda v: str(v),
-        }
-        use_enum_values = False  # Keep enums as enums, not strings
+        },
+    )
 
     @field_validator("content")
     @classmethod

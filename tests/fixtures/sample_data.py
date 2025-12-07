@@ -3,7 +3,8 @@
 from datetime import datetime
 from typing import Dict, List
 
-from bruno_core.models.ability import AbilityMetadata, AbilityParameter, AbilityRequest
+from bruno_core.models.ability import (AbilityMetadata, AbilityParameter,
+                                       AbilityRequest)
 from bruno_core.models.memory import MemoryEntry, MemoryType
 from bruno_core.models.message import Message, MessageRole
 

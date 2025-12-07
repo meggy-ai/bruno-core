@@ -1,0 +1,87 @@
+site_name: Bruno Core Documentation
+site_description: Modular foundation package for the Bruno AI assistant ecosystem
+site_author: Bruno Core Team
+site_url: https://meggy-ai.github.io/bruno-core
+
+repo_name: meggy-ai/bruno-core
+repo_url: https://github.com/meggy-ai/bruno-core
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            merge_init_into_class: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Quick Start: quickstart.md
+    - Architecture: architecture.md
+  - Guides:
+    - Creating Abilities: guides/creating_abilities.md
+    - Custom LLM Providers: guides/custom_llm.md
+    - Memory Backends: guides/memory_backends.md
+  - API Reference:
+    - Interfaces: api/interfaces.md
+    - Base Classes: api/base.md
+    - Models: api/models.md
+    - Registry: api/registry.md
+    - Context: api/context.md
+    - Events: api/events.md
+    - Utils: api/utils.md
+  - Examples:
+    - Overview: examples/README.md
+  - Development:
+    - Contributing: CONTRIBUTING.md
+    - Changelog: CHANGELOG.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/meggy-ai/bruno-core

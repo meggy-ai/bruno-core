@@ -15,7 +15,8 @@ from bruno_core.interfaces.memory import MemoryInterface
 from bruno_core.models.ability import AbilityRequest, AbilityResponse
 from bruno_core.models.context import ConversationContext, UserContext
 from bruno_core.models.message import Message, MessageRole
-from bruno_core.models.response import ActionResult, ActionStatus, AssistantResponse
+from bruno_core.models.response import (ActionResult, ActionStatus,
+                                        AssistantResponse)
 from bruno_core.utils.exceptions import AbilityError, BrunoError, RegistryError
 from bruno_core.utils.logging import get_logger
 
@@ -69,6 +70,8 @@ class BaseAssistant(AssistantInterface):
         self,
         message: Message,
         context: Optional[ConversationContext] = None,
+        user_id: Optional[str] = None,
+        conversation_id: Optional[str] = None,
     ) -> AssistantResponse:
         """
         Process an incoming message and generate a response.
@@ -76,6 +79,8 @@ class BaseAssistant(AssistantInterface):
         Args:
             message: User message to process
             context: Optional conversation context
+            user_id: Optional user ID (used if context not provided)
+            conversation_id: Optional conversation ID (used if context not provided)
 
         Returns:
             Assistant response with text and actions
@@ -95,7 +100,13 @@ class BaseAssistant(AssistantInterface):
 
             # Get or create context
             if context is None:
-                context = await self._get_or_create_context(message)
+                context = await self._get_or_create_context(
+                    message, user_id=user_id, conversation_id=conversation_id
+                )
+
+            # Set conversation_id on message if provided
+            if conversation_id and message.conversation_id is None:
+                message.conversation_id = conversation_id
 
             # Add user message to context
             context.add_message(message)
@@ -118,9 +129,7 @@ class BaseAssistant(AssistantInterface):
 
             # Add to context and store
             context.add_message(assistant_message)
-            await self.memory.store_message(
-                assistant_message, context.conversation_id
-            )
+            await self.memory.store_message(assistant_message, context.conversation_id)
 
             # Execute abilities if detected
             action_results = []
@@ -240,9 +249,7 @@ class BaseAssistant(AssistantInterface):
             try:
                 await ability.shutdown()
             except Exception as e:
-                logger.error(
-                    "ability_shutdown_failed", name=ability_name, error=str(e)
-                )
+                logger.error("ability_shutdown_failed", name=ability_name, error=str(e))
 
         self.abilities.clear()
         self.initialized = False
@@ -258,6 +265,7 @@ class BaseAssistant(AssistantInterface):
         health = {
             "status": "healthy" if self.initialized else "not_initialized",
             "abilities": {},
+            "abilities_count": len(self.abilities),
             "llm": "unknown",
             "memory": "unknown",
         }
@@ -299,21 +307,29 @@ class BaseAssistant(AssistantInterface):
         }
 
     async def _get_or_create_context(
-        self, message: Message
+        self, message: Message, user_id: Optional[str] = None, conversation_id: Optional[str] = None
     ) -> ConversationContext:
         """
         Get existing context or create new one.
 
         Args:
             message: User message
+            user_id: Optional user ID
+            conversation_id: Optional conversation ID
 
         Returns:
             Conversation context
         """
-        # For now, create a simple context
-        # In a full implementation, this would retrieve from memory
-        user = UserContext(user_id=message.metadata.get("user_id", "default"))
-        context = await self.memory.get_context(user.user_id)
+        # Extract user_id from params or message metadata
+        uid = user_id or message.metadata.get("user_id", "default")
+
+        # Get context from memory
+        context = await self.memory.get_context(uid, conversation_id)
+
+        # Set conversation_id if provided
+        if conversation_id:
+            context.conversation_id = conversation_id
+
         return context
 
     async def _generate_response(self, context: ConversationContext) -> str:
@@ -364,9 +380,7 @@ class BaseAssistant(AssistantInterface):
 
         return requests
 
-    async def _execute_abilities(
-        self, requests: List[AbilityRequest]
-    ) -> List[ActionResult]:
+    async def _execute_abilities(self, requests: List[AbilityRequest]) -> List[ActionResult]:
         """
         Execute ability requests.
 
@@ -406,11 +420,7 @@ class BaseAssistant(AssistantInterface):
                 results.append(
                     ActionResult(
                         action_type=request.ability_name,
-                        status=(
-                            ActionStatus.SUCCESS
-                            if response.success
-                            else ActionStatus.FAILED
-                        ),
+                        status=(ActionStatus.SUCCESS if response.success else ActionStatus.FAILED),
                         message=response.message,
                         data=response.data,
                         error=response.error,

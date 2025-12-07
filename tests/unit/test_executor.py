@@ -16,7 +16,8 @@ class TestActionExecutor:
         """Test executing a single action."""
         executor = ActionExecutor()
         ability = MockAbility()
-        
+        await ability.initialize()
+
         actions = [
             AbilityRequest(
                 ability_name="mock",
@@ -25,10 +26,10 @@ class TestActionExecutor:
                 user_id="test-user",
             )
         ]
-        
+
         ability_map = {"mock": ability}
         results = await executor.execute(actions, ability_map)
-        
+
         assert len(results) == 1
         assert results[0].status == ActionStatus.SUCCESS
 
@@ -36,7 +37,8 @@ class TestActionExecutor:
         """Test sequential execution."""
         executor = ActionExecutor()
         ability = MockAbility()
-        
+        await ability.initialize()
+
         actions = [
             AbilityRequest(
                 ability_name="mock",
@@ -51,10 +53,10 @@ class TestActionExecutor:
                 user_id="test-user",
             ),
         ]
-        
+
         ability_map = {"mock": ability}
         results = await executor.execute(actions, ability_map, parallel=False)
-        
+
         assert len(results) == 2
         assert all(r.status == ActionStatus.SUCCESS for r in results)
 
@@ -62,7 +64,8 @@ class TestActionExecutor:
         """Test parallel execution."""
         executor = ActionExecutor(max_concurrent=2)
         ability = MockAbility()
-        
+        await ability.initialize()
+
         actions = [
             AbilityRequest(
                 ability_name="mock",
@@ -72,17 +75,17 @@ class TestActionExecutor:
             )
             for i in range(5)
         ]
-        
+
         ability_map = {"mock": ability}
         results = await executor.execute(actions, ability_map, parallel=True)
-        
+
         assert len(results) == 5
         assert all(r.status == ActionStatus.SUCCESS for r in results)
 
     async def test_ability_not_found(self):
         """Test handling missing ability."""
         executor = ActionExecutor()
-        
+
         actions = [
             AbilityRequest(
                 ability_name="nonexistent",
@@ -91,10 +94,10 @@ class TestActionExecutor:
                 user_id="test-user",
             )
         ]
-        
+
         ability_map = {}
         results = await executor.execute(actions, ability_map)
-        
+
         assert len(results) == 1
         assert results[0].status == ActionStatus.FAILED
         assert "not found" in results[0].error.lower()
@@ -103,7 +106,8 @@ class TestActionExecutor:
         """Test execution statistics."""
         executor = ActionExecutor()
         ability = MockAbility()
-        
+        await ability.initialize()
+
         actions = [
             AbilityRequest(
                 ability_name="mock",
@@ -112,10 +116,10 @@ class TestActionExecutor:
                 user_id="test-user",
             )
         ]
-        
+
         ability_map = {"mock": ability}
         await executor.execute(actions, ability_map)
-        
+
         stats = executor.get_statistics()
         assert stats["total_executions"] == 1
         assert stats["successful"] == 1
@@ -125,7 +129,8 @@ class TestActionExecutor:
         """Test clearing execution history."""
         executor = ActionExecutor()
         ability = MockAbility()
-        
+        await ability.initialize()
+
         actions = [
             AbilityRequest(
                 ability_name="mock",
@@ -134,10 +139,10 @@ class TestActionExecutor:
                 user_id="test-user",
             )
         ]
-        
+
         ability_map = {"mock": ability}
         await executor.execute(actions, ability_map)
-        
+
         executor.clear_history()
         stats = executor.get_statistics()
         assert stats["total_executions"] == 0

@@ -19,11 +19,11 @@ Modules:
     stream: StreamInterface - Streaming response interface
 """
 
+from bruno_core.interfaces.ability import AbilityInterface
 from bruno_core.interfaces.assistant import AssistantInterface
+from bruno_core.interfaces.embedding import EmbeddingInterface
 from bruno_core.interfaces.llm import LLMInterface
 from bruno_core.interfaces.memory import MemoryInterface
-from bruno_core.interfaces.ability import AbilityInterface
-from bruno_core.interfaces.embedding import EmbeddingInterface
 from bruno_core.interfaces.stream import StreamInterface
 
 __all__ = [

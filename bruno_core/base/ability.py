@@ -8,12 +8,8 @@ from abc import abstractmethod
 from typing import Any, Dict, List
 
 from bruno_core.interfaces.ability import AbilityInterface
-from bruno_core.models.ability import (
-    AbilityMetadata,
-    AbilityParameter,
-    AbilityRequest,
-    AbilityResponse,
-)
+from bruno_core.models.ability import (AbilityMetadata, AbilityParameter,
+                                       AbilityRequest, AbilityResponse)
 from bruno_core.utils.exceptions import AbilityError, ValidationError
 from bruno_core.utils.logging import get_logger
 
@@ -31,7 +27,7 @@ class BaseAbility(AbilityInterface):
         >>> class TimerAbility(BaseAbility):
         ...     def get_metadata(self):
         ...         return AbilityMetadata(name="timer", description="Manage timers")
-        ...     
+        ...
         ...     async def execute_action(self, request):
         ...         # Implementation
         ...         pass

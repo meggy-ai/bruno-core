@@ -105,9 +105,7 @@ def extract_keywords(text: str, min_length: int = 3) -> List[str]:
         "being",
     }
 
-    keywords = [
-        word for word in words if len(word) >= min_length and word not in common_words
-    ]
+    keywords = [word for word in words if len(word) >= min_length and word not in common_words]
 
     # Remove duplicates while preserving order
     seen = set()

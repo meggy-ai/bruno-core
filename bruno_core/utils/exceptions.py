@@ -146,6 +146,32 @@ class ContextError(BrunoError):
     pass
 
 
+class SessionError(BrunoError):
+    """
+    Session management errors.
+
+    Raised when session operations fail.
+
+    Example:
+        >>> raise SessionError("Invalid session state", details={"session_id": "sess_123"})
+    """
+
+    pass
+
+
+class StateError(BrunoError):
+    """
+    State management errors.
+
+    Raised when state operations fail.
+
+    Example:
+        >>> raise StateError("Invalid state transition", details={"from": "active", "to": "closed"})
+    """
+
+    pass
+
+
 class EventError(BrunoError):
     """
     Event system errors.

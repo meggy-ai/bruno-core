@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from bruno_core.models.message import Message
 
@@ -36,15 +36,9 @@ class UserContext(BaseModel):
 
     user_id: str = Field(..., min_length=1, description="Unique user identifier")
     name: Optional[str] = Field(default=None, description="User's name")
-    preferences: Dict[str, Any] = Field(
-        default_factory=dict, description="User preferences"
-    )
-    profile: Dict[str, Any] = Field(
-        default_factory=dict, description="User profile data"
-    )
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Additional user data"
-    )
+    preferences: Dict[str, Any] = Field(default_factory=dict, description="User preferences")
+    profile: Dict[str, Any] = Field(default_factory=dict, description="User profile data")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional user data")
     created_at: datetime = Field(
         default_factory=datetime.utcnow, description="When user was created"
     )
@@ -52,12 +46,11 @@ class UserContext(BaseModel):
         default_factory=datetime.utcnow, description="Last activity timestamp"
     )
 
-    class Config:
-        """Pydantic model configuration."""
-
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
         }
+    )
 
     def update_activity(self) -> None:
         """Update last activity timestamp to now."""
@@ -98,31 +91,56 @@ class SessionContext(BaseModel):
         default_factory=lambda: str(uuid4()), description="Unique session identifier"
     )
     user_id: str = Field(..., min_length=1, description="User ID this session belongs to")
-    started_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Session start time"
+    conversation_id: str = Field(
+        default_factory=lambda: str(uuid4()), description="Associated conversation ID"
     )
+    started_at: datetime = Field(default_factory=datetime.utcnow, description="Session start time")
     ended_at: Optional[datetime] = Field(
         default=None, description="Session end time (None if active)"
     )
+    last_activity: datetime = Field(
+        default_factory=datetime.utcnow, description="Last activity timestamp"
+    )
     is_active: bool = Field(default=True, description="Whether session is active")
-    state: Dict[str, Any] = Field(
-        default_factory=dict, description="Session state data"
-    )
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Additional session data"
-    )
+    state: Dict[str, Any] = Field(default_factory=dict, description="Session state data")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional session data")
 
-    class Config:
-        """Pydantic model configuration."""
-
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
         }
+    )
+
+    @property
+    def start_time(self) -> datetime:
+        """Alias for started_at."""
+        return self.started_at
+
+    @property
+    def end_time(self) -> Optional[datetime]:
+        """Alias for ended_at."""
+        return self.ended_at
+
+    @end_time.setter
+    def end_time(self, value: datetime) -> None:
+        """Set ended_at via end_time alias."""
+        self.ended_at = value
+
+    @property
+    def active(self) -> bool:
+        """Alias for is_active."""
+        return self.is_active
+
+    @active.setter
+    def active(self, value: bool) -> None:
+        """Set is_active via active alias."""
+        self.is_active = value
 
     def end_session(self) -> None:
         """Mark session as ended."""
         self.ended_at = datetime.utcnow()
         self.is_active = False
+        # Note: active property automatically reflects is_active
 
     def get_state(self, key: str, default: Any = None) -> Any:
         """Get session state value."""
@@ -171,16 +189,15 @@ class ConversationContext(BaseModel):
         default=20, ge=1, le=1000, description="Max messages to keep in context"
     )
     metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Additional conversation metadata"
+        default_factory=dict, description="Additional conversation data"
     )
 
-    class Config:
-        """Pydantic model configuration."""
-
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
             UUID: lambda v: str(v),
         }
+    )
 
     def add_message(self, message: Message) -> None:
         """
@@ -202,11 +219,11 @@ class ConversationContext(BaseModel):
             # Keep system messages, remove oldest user/assistant messages
             system_messages = [m for m in self.messages if m.role.value == "system"]
             other_messages = [m for m in self.messages if m.role.value != "system"]
-            
+
             # Keep most recent messages
             keep_count = self.max_messages - len(system_messages)
             kept_messages = other_messages[-keep_count:] if keep_count > 0 else []
-            
+
             self.messages = system_messages + kept_messages
 
     def get_messages_for_llm(self) -> List[Dict[str, str]]:
@@ -217,6 +234,10 @@ class ConversationContext(BaseModel):
             List of dicts with 'role' and 'content' keys
         """
         return [msg.to_llm_format() for msg in self.messages]
+
+    def to_llm_format(self) -> List[Dict[str, str]]:
+        """Alias for get_messages_for_llm()."""
+        return self.get_messages_for_llm()
 
     def get_recent_messages(self, count: int = 5) -> List[Message]:
         """

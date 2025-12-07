@@ -99,7 +99,7 @@ class ContextManager:
 
             # Save to memory if enabled
             if self.auto_save and user_id:
-                await self.memory.store_message(message, user_id, conversation_id)
+                await self.memory.store_message(message, conversation_id)
 
             # Check compression trigger
             if self._should_trigger_compression(conversation_id):
@@ -153,9 +153,7 @@ class ContextManager:
 
             # Filter system messages if needed
             if not include_system:
-                buffer_messages = [
-                    m for m in buffer_messages if m.role != MessageRole.SYSTEM
-                ]
+                buffer_messages = [m for m in buffer_messages if m.role != MessageRole.SYSTEM]
 
             # Retrieve relevant memories if user_id provided
             relevant_memories = []
@@ -170,9 +168,17 @@ class ContextManager:
                         limit=5,
                     )
 
+            # Create user and session contexts
+            from bruno_core.models.context import SessionContext, UserContext
+
+            user_context = UserContext(user_id=user_id)
+            session_context = SessionContext(user_id=user_id, conversation_id=conversation_id)
+
             # Build context
             context = ConversationContext(
                 conversation_id=conversation_id,
+                user=user_context,
+                session=session_context,
                 messages=buffer_messages,
                 metadata={
                     "buffer_size": len(buffer_messages),
@@ -185,8 +191,7 @@ class ContextManager:
             # Add relevant memories to metadata
             if relevant_memories:
                 context.metadata["relevant_memories"] = [
-                    {"content": m.content, "role": m.role.value}
-                    for m in relevant_memories
+                    {"content": m.content, "role": m.role.value} for m in relevant_memories
                 ]
 
             logger.debug(
@@ -220,7 +225,7 @@ class ContextManager:
         if conversation_id in self._buffers:
             message_count = len(self._buffers[conversation_id])
             del self._buffers[conversation_id]
-            
+
             if conversation_id in self._message_counts:
                 del self._message_counts[conversation_id]
 

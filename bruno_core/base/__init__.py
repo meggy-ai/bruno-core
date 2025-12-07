@@ -11,10 +11,10 @@ Modules:
     chain: ChainExecutor - Workflow orchestration
 """
 
-from bruno_core.base.assistant import BaseAssistant
-from bruno_core.base.executor import ActionExecutor
 from bruno_core.base.ability import BaseAbility
+from bruno_core.base.assistant import BaseAssistant
 from bruno_core.base.chain import ChainExecutor
+from bruno_core.base.executor import ActionExecutor
 
 __all__ = [
     "BaseAssistant",

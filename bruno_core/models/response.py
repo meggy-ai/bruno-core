@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ActionStatus(str, Enum):
@@ -49,12 +49,11 @@ class ActionResult(BaseModel):
         default_factory=datetime.utcnow, description="When action was executed"
     )
 
-    class Config:
-        """Pydantic model configuration."""
-
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
         }
+    )
 
 
 class AssistantResponse(BaseModel):
@@ -88,9 +87,7 @@ class AssistantResponse(BaseModel):
 
     id: UUID = Field(default_factory=uuid4, description="Unique response identifier")
     text: str = Field(..., min_length=1, description="Text response")
-    actions: List[ActionResult] = Field(
-        default_factory=list, description="Executed actions"
-    )
+    actions: List[ActionResult] = Field(default_factory=list, description="Executed actions")
     success: bool = Field(default=True, description="Whether request succeeded")
     error: Optional[str] = Field(default=None, description="Error message if failed")
     metadata: Dict[str, Any] = Field(
@@ -100,13 +97,12 @@ class AssistantResponse(BaseModel):
         default_factory=datetime.utcnow, description="Response generation time"
     )
 
-    class Config:
-        """Pydantic model configuration."""
-
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
             UUID: lambda v: str(v),
         }
+    )
 
     def add_action(self, action: ActionResult) -> None:
         """Add an action result to the response."""
@@ -148,9 +144,7 @@ class StreamResponse(BaseModel):
 
     chunk: str = Field(..., description="Text chunk")
     is_complete: bool = Field(default=False, description="Whether this is final chunk")
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Additional chunk metadata"
-    )
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional chunk metadata")
 
     def __str__(self) -> str:
         """String representation returns the chunk."""

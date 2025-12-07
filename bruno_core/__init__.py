@@ -17,10 +17,10 @@ Core Components:
 Example:
     >>> from bruno_core import BaseAssistant
     >>> from bruno_core.models import BrunoRequest
-    >>> 
+    >>>
     >>> # Create an assistant instance
     >>> assistant = BaseAssistant(llm=my_llm, memory=my_memory)
-    >>> 
+    >>>
     >>> # Process a message
     >>> request = BrunoRequest(
     ...     user_id="user_123",
@@ -31,16 +31,9 @@ Example:
     >>> print(response.text)
 """
 
-from bruno_core.__version__ import (
-    __version__,
-    __version_info__,
-    __title__,
-    __description__,
-    __author__,
-    __author_email__,
-    __license__,
-    __url__,
-)
+from bruno_core.__version__ import (__author__, __author_email__,
+                                    __description__, __license__, __title__,
+                                    __url__, __version__, __version_info__)
 
 # Version will be importable as: from bruno_core import __version__
 __all__ = [

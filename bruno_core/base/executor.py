@@ -189,9 +189,7 @@ class ActionExecutor:
         logger.warning("rolling_back_actions")
 
         # Find successfully executed actions
-        successful_indices = [
-            i for i, r in enumerate(results) if r.status == ActionStatus.SUCCESS
-        ]
+        successful_indices = [i for i, r in enumerate(results) if r.status == ActionStatus.SUCCESS]
 
         # Rollback in reverse order
         for i in reversed(successful_indices):
@@ -244,9 +242,7 @@ class ActionExecutor:
             "total_actions": total_actions,
             "successful": total_successful,
             "failed": total_failed,
-            "success_rate": (
-                total_successful / total_actions if total_actions > 0 else 0
-            ),
+            "success_rate": (total_successful / total_actions if total_actions > 0 else 0),
         }
 
     def clear_history(self) -> None:

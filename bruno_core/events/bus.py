@@ -27,10 +27,10 @@ class EventBus:
 
     Example:
         >>> bus = EventBus()
-        >>> 
+        >>>
         >>> async def on_message(event):
         ...     print(f"Message: {event.data}")
-        >>> 
+        >>>
         >>> bus.subscribe(EventType.MESSAGE_RECEIVED, on_message)
         >>> await bus.publish(MessageEvent(event_type=EventType.MESSAGE_RECEIVED, ...))
     """
@@ -48,7 +48,7 @@ class EventBus:
 
         # Handlers by event type
         self._handlers: Dict[EventType, List[Callable]] = defaultdict(list)
-        
+
         # Wildcard handlers (receive all events)
         self._wildcard_handlers: List[Callable] = []
 
@@ -80,7 +80,7 @@ class EventBus:
         """
         # Store with priority
         self._handlers[event_type].append((priority, handler))
-        
+
         # Sort by priority (descending)
         self._handlers[event_type].sort(key=lambda x: x[0], reverse=True)
 
@@ -120,9 +120,7 @@ class EventBus:
             return False
 
         original_count = len(self._handlers[event_type])
-        self._handlers[event_type] = [
-            (p, h) for p, h in self._handlers[event_type] if h != handler
-        ]
+        self._handlers[event_type] = [(p, h) for p, h in self._handlers[event_type] if h != handler]
 
         removed = len(self._handlers[event_type]) < original_count
         if removed:
@@ -174,7 +172,7 @@ class EventBus:
 
             # Get handlers for this event type
             handlers = self._handlers.get(event.event_type, [])
-            
+
             # Add wildcard handlers
             wildcard_handlers = [(0, h) for h in self._wildcard_handlers]
             all_handlers = handlers + wildcard_handlers
@@ -186,7 +184,7 @@ class EventBus:
                         await handler(event)
                     else:
                         handler(event)
-                    
+
                     self._stats["handled"] += 1
 
                 except Exception as e:
