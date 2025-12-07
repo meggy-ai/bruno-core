@@ -6,11 +6,14 @@ LLM, memory, abilities, and other components.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from bruno_core.models.context import ConversationContext
 from bruno_core.models.message import Message
 from bruno_core.models.response import AssistantResponse
+
+if TYPE_CHECKING:
+    from bruno_core.interfaces.ability import AbilityInterface
 
 
 class AssistantInterface(ABC):
