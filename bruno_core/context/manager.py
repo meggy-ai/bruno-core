@@ -160,19 +160,24 @@ class ContextManager:
             if user_id and buffer_messages:
                 # Get the last user message as query context
                 user_messages = [m for m in buffer_messages if m.role == MessageRole.USER]
-                if user_messages:
+                if user_messages and hasattr(self.memory, "retrieve_context"):
                     last_query = user_messages[-1].content
+                    # retrieve_context is an optional extension method
                     relevant_memories = await self.memory.retrieve_context(
-                        user_id=user_id,
-                        query=last_query,
-                        limit=5,
+                        user_id=user_id, query=last_query, limit=5
                     )
 
             # Create user and session contexts
             from bruno_core.models.context import SessionContext, UserContext
 
-            user_context = UserContext(user_id=user_id)
-            session_context = SessionContext(user_id=user_id, conversation_id=conversation_id)
+            # Ensure user_id and conversation_id are not None
+            safe_user_id = user_id or "unknown"
+            safe_conversation_id = conversation_id or "default"
+
+            user_context = UserContext(user_id=safe_user_id)
+            session_context = SessionContext(
+                user_id=safe_user_id, conversation_id=safe_conversation_id
+            )
 
             # Build context
             context = ConversationContext(

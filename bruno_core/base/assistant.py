@@ -260,7 +260,7 @@ class BaseAssistant(AssistantInterface):
         Returns:
             Dict with health status information
         """
-        health = {
+        health: Dict[str, Any] = {
             "status": "healthy" if self.initialized else "not_initialized",
             "abilities": {},
             "abilities_count": len(self.abilities),

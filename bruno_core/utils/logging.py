@@ -74,9 +74,9 @@ def setup_logging(
         logging.getLogger().addHandler(file_handler)
 
 
-def get_logger(name: str, **initial_values: Any) -> structlog.BoundLogger:
+def get_logger(name: str, **initial_values: Any) -> Any:  # BoundLogger type is complex
     """
-    Get a logger instance with optional initial context.
+    Get a configured logger instance.
 
     Args:
         name: Logger name (usually __name__)

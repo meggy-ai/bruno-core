@@ -45,6 +45,7 @@ class StateManager:
         """
         self.use_memory = use_memory
         self._memory_store: Dict[str, Dict[str, Any]] = {}
+        self.storage_path: Optional[Path]
 
         if not use_memory:
             self.storage_path = Path(storage_path) if storage_path else Path("./bruno_state")
@@ -78,6 +79,8 @@ class StateManager:
                 self._memory_store[namespace][key] = value
             else:
                 # File-based storage
+                if self.storage_path is None:
+                    raise StateError("Storage path not configured")
                 namespace_dir = self.storage_path / namespace
                 namespace_dir.mkdir(exist_ok=True)
 
@@ -126,6 +129,8 @@ class StateManager:
             if self.use_memory:
                 return self._memory_store.get(namespace, {}).get(key, default)
             else:
+                if self.storage_path is None:
+                    raise StateError("Storage path not configured")
                 state_file = self.storage_path / namespace / f"{key}.json"
 
                 if not state_file.exists():
@@ -169,6 +174,8 @@ class StateManager:
                     return True
                 return False
             else:
+                if self.storage_path is None:
+                    raise StateError("Storage path not configured")
                 state_file = self.storage_path / namespace / f"{key}.json"
 
                 if state_file.exists():
@@ -200,6 +207,8 @@ class StateManager:
             if self.use_memory:
                 return list(self._memory_store.get(namespace, {}).keys())
             else:
+                if self.storage_path is None:
+                    raise StateError("Storage path not configured")
                 namespace_dir = self.storage_path / namespace
 
                 if not namespace_dir.exists():
@@ -231,6 +240,8 @@ class StateManager:
                     return count
                 return 0
             else:
+                if self.storage_path is None:
+                    raise StateError("Storage path not configured")
                 namespace_dir = self.storage_path / namespace
 
                 if not namespace_dir.exists():
@@ -263,6 +274,8 @@ class StateManager:
             if self.use_memory:
                 return list(self._memory_store.keys())
             else:
+                if self.storage_path is None:
+                    raise StateError("Storage path not configured")
                 if not self.storage_path.exists():
                     return []
 
@@ -289,6 +302,14 @@ class StateManager:
                     "total_keys": total_keys,
                 }
             else:
+                if self.storage_path is None:
+                    return {
+                        "mode": "file-based",
+                        "storage_path": None,
+                        "namespaces": 0,
+                        "total_keys": 0,
+                    }
+
                 namespaces = 0
                 total_keys = 0
 

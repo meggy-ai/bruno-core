@@ -36,7 +36,7 @@ class PluginInfo:
     dependencies: List[str] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate plugin info after initialization."""
         if not self.name:
             raise ValidationError("Plugin name cannot be empty")
@@ -59,7 +59,7 @@ class PluginRegistry(ABC):
         ...         return issubclass(plugin_class, MyPluginBase)
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize plugin registry."""
         self._plugins: Dict[str, PluginInfo] = {}
         self._instances: Dict[str, Any] = {}
@@ -217,7 +217,7 @@ class PluginRegistry(ABC):
         """
         return self._plugins.get(name)
 
-    def get_instance(self, name: str, **kwargs) -> Any:
+    def get_instance(self, name: str, **kwargs: Any) -> Any:
         """
         Get or create a plugin instance.
 

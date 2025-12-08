@@ -168,9 +168,13 @@ def _apply_env_overrides(config: Dict[str, Any]) -> Dict[str, Any]:
     if os.getenv("BRUNO_LLM_BASE_URL"):
         config["llm"]["base_url"] = os.getenv("BRUNO_LLM_BASE_URL")
     if os.getenv("BRUNO_LLM_TEMPERATURE"):
-        config["llm"]["temperature"] = float(os.getenv("BRUNO_LLM_TEMPERATURE"))
+        temp_str = os.getenv("BRUNO_LLM_TEMPERATURE")
+        if temp_str:
+            config["llm"]["temperature"] = float(temp_str)
     if os.getenv("BRUNO_LLM_MAX_TOKENS"):
-        config["llm"]["max_tokens"] = int(os.getenv("BRUNO_LLM_MAX_TOKENS"))
+        max_tokens_str = os.getenv("BRUNO_LLM_MAX_TOKENS")
+        if max_tokens_str:
+            config["llm"]["max_tokens"] = int(max_tokens_str)
 
     # Memory overrides
     if "memory" not in config:
@@ -181,7 +185,9 @@ def _apply_env_overrides(config: Dict[str, Any]) -> Dict[str, Any]:
     if os.getenv("BRUNO_MEMORY_CONNECTION_STRING"):
         config["memory"]["connection_string"] = os.getenv("BRUNO_MEMORY_CONNECTION_STRING")
     if os.getenv("BRUNO_MEMORY_MAX_MESSAGES"):
-        config["memory"]["max_messages"] = int(os.getenv("BRUNO_MEMORY_MAX_MESSAGES"))
+        max_msgs_str = os.getenv("BRUNO_MEMORY_MAX_MESSAGES")
+        if max_msgs_str:
+            config["memory"]["max_messages"] = int(max_msgs_str)
 
     # Assistant overrides
     if "assistant" not in config:

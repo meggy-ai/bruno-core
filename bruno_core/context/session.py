@@ -73,9 +73,10 @@ class SessionManager:
                 session_id=session_id,
                 user_id=user_id,
                 conversation_id=conversation_id or f"conv_{session_id[:8]}",
-                start_time=now,
-                last_activity=now,
-                active=True,
+                started_at=now,
+                ended_at=None,
+                is_active=True,
+                state={},
                 metadata=metadata or {},
             )
 
@@ -178,12 +179,12 @@ class SessionManager:
             return
 
         try:
-            session.active = False
-            session.end_time = datetime.utcnow()
+            session.is_active = False
+            session.ended_at = datetime.utcnow()
 
             # Calculate duration
-            if session.start_time:
-                duration = (session.end_time - session.start_time).total_seconds()
+            if session.started_at and session.ended_at:
+                duration = (session.ended_at - session.started_at).total_seconds()
                 session.metadata["duration_seconds"] = duration
 
             logger.info(
