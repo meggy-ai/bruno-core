@@ -1,191 +1,247 @@
-# meggy-ai
-┌─────────────────────────────────────────┐
-│         5. bruno-pa                     │  ← Applications (depends on everything)
-│      (Personal Assistant)               │
-└─────────────────────────────────────────┘
-                  ▲
-                  │ depends on
-    ┌─────────────┼─────────────┬──────────┐
-    │             │             │          │
-┌───┴────┐  ┌────┴─────┐  ┌────┴────┐ ┌──┴─────────┐
-│   3a.  │  │   3b.    │  │   3c.   │ │    4.      │
-│ bruno- │  │  bruno-  │  │ bruno-  │ │  bruno-    │
-│  llm   │  │  memory  │  │abilities│ │   docs     │
-└────────┘  └──────────┘  └─────────┘ └────────────┘
-    ▲            ▲             ▲            │
-    │            │             │            │
-    └────────────┴─────────────┴────────────┘
-                  │ all depend on
-            ┌─────┴──────┐
-            │     1.     │
-            │  bruno-    │  ← Foundation (no dependencies)
-            │   core     │
-            └────────────┘
-                  ▲
-                  │ (optional: start here)
-            ┌─────┴──────┐
-            │     2.     │
-            │  bruno-    │  ← Examples & templates
-            │ templates  │
-            └────────────┘
+# Bruno Core
 
-bruno-llm/
-├── clients/
-│   ├── ollama.py      # Your local LLM
-│   ├── claude.py      # Anthropic
-│   └── openai.py      # OpenAI
-├── factory.py         # LLMFactory
-└── utils/
-    └── token_counter.py
+[![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Type Checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue)](http://mypy-lang.org/)
 
-bruno-memory/
-├── backends/
-│   ├── sqlite.py      # Simple file-based
-│   ├── redis.py       # Fast in-memory
-│   └── postgres.py    # Production-grade
-├── conversation_manager.py
-├── context_compressor.py
-└── memory_retriever.py
+**Bruno Core** is the foundational package for the Bruno AI assistant ecosystem. It provides a modular, extensible framework for building AI assistants with swappable components through a plugin-based architecture.
 
-bruno-abilities/
-├── timer/
-│   └── timer_ability.py
-├── alarm/
-│   └── alarm_ability.py
-├── notes/
-│   └── notes_ability.py
-└── weather/
-    └── weather_ability.py
+## 🎯 Key Features
 
-bruno-pa/
-├── interfaces/
-│   ├── voice/
-│   │   └── main.py          # Your existing voice code
-│   ├── text/
-│   │   └── bruno_text.py    # Your existing text code
-│   └── discord/
-│       └── discord_bot.py   # Your existing Discord code
-├── config/
-│   └── settings.py
-└── run.py                   # Entry point
+- **🔌 Plugin Architecture**: Dynamically load LLM providers, memory backends, and abilities via Python entry points
+- **🎭 Interface-Based Design**: Code against interfaces, not implementations - swap components without changing code
+- **🛡️ Type Safety**: Full Pydantic v2 models with strict mypy type checking
+- **⚡ Async-First**: Non-blocking I/O for all operations with concurrent ability execution
+- **📡 Event-Driven**: Decoupled components communicate via async event bus
+- **📝 Structured Logging**: Built-in structured logging with structlog
+- **🎨 Extensible**: Create custom abilities, LLM providers, and memory backends
 
-# bruno-core
-bruno core
+## 🏗️ Architecture
 
-Bruno Core Package Structure
-=============================
+```
+┌──────────────────────────────────────────────────┐
+│              Application Layer                    │
+│         (Your AI Assistant Application)           │
+└──────────────────────────────────────────────────┘
+                      ▲
+                      │ uses
+┌──────────────────────────────────────────────────┐
+│              Plugin Layer                         │
+│    (Abilities, LLM Providers, Memory Backends)    │
+└──────────────────────────────────────────────────┘
+                      ▲
+                      │ implements
+┌──────────────────────────────────────────────────┐
+│           Base Implementation Layer               │
+│  (BaseAssistant, BaseAbility, ActionExecutor)    │
+└──────────────────────────────────────────────────┘
+                      ▲
+                      │ uses
+┌──────────────────────────────────────────────────┐
+│              Interface Layer                      │
+│   (Contracts: LLMInterface, MemoryInterface)     │
+└──────────────────────────────────────────────────┘
+                      ▲
+                      │ depends on
+┌──────────────────────────────────────────────────┐
+│              Foundation Layer                     │
+│    (Models, Utils, Registry, Events, Context)    │
+└──────────────────────────────────────────────────┘
+```
 
-This outlines the complete structure and organization of bruno-core,
-the foundational package for the Bruno ecosystem.
+## 🚀 Quick Start
 
-Directory Structure:
---------------------
+### Installation
 
-bruno-core/
-├── setup.py
-├── pyproject.toml
-├── README.md
-├── LICENSE
-├── CHANGELOG.md
-├── .gitignore
-├── .pre-commit-config.yaml
-├── bruno_core/
-│   ├── __init__.py
-│   ├── __version__.py
-│   │
-│   ├── interfaces/              # Abstract Base Classes (Contracts)
-│   │   ├── __init__.py
-│   │   ├── assistant.py         # AssistantInterface
-│   │   ├── llm.py              # LLMInterface
-│   │   ├── memory.py           # MemoryInterface
-│   │   ├── ability.py          # AbilityInterface
-│   │   ├── embedding.py        # EmbeddingInterface
-│   │   └── stream.py           # StreamInterface
-│   │
-│   ├── base/                    # Base Implementations
-│   │   ├── __init__.py
-│   │   ├── assistant.py         # BaseAssistant (main orchestrator)
-│   │   ├── executor.py          # ActionExecutor
-│   │   ├── ability.py           # BaseAbility
-│   │   └── chain.py             # ChainExecutor (for complex workflows)
-│   │
-│   ├── models/                  # Data Models (Pydantic)
-│   │   ├── __init__.py
-│   │   ├── message.py           # Message, Role, MessageType
-│   │   ├── context.py           # ConversationContext, UserContext
-│   │   ├── response.py          # AssistantResponse
-│   │   ├── memory.py            # MemoryEntry, MemoryMetadata
-│   │   ├── ability.py           # AbilityRequest, AbilityResponse
-│   │   └── config.py            # Configuration models
-│   │
-│   ├── registry/                # Plugin Registry System
-│   │   ├── __init__.py
-│   │   ├── ability_registry.py  # Ability plugin registry
-│   │   ├── llm_registry.py      # LLM provider registry
-│   │   └── memory_registry.py   # Memory backend registry
-│   │
-│   ├── context/                 # Context Management
-│   │   ├── __init__.py
-│   │   ├── manager.py           # ContextManager
-│   │   ├── session.py           # SessionManager
-│   │   └── state.py             # StateManager
-│   │
-│   ├── utils/                   # Utilities
-│   │   ├── __init__.py
-│   │   ├── logging.py           # Structured logging setup
-│   │   ├── config.py            # Configuration loading
-│   │   ├── exceptions.py        # Custom exceptions
-│   │   ├── validation.py        # Input validation
-│   │   ├── async_utils.py       # Async helpers
-│   │   └── text_processing.py   # Text utilities
-│   │
-│   ├── events/                  # Event System
-│   │   ├── __init__.py
-│   │   ├── bus.py              # EventBus
-│   │   ├── handlers.py         # Event handlers
-│   │   └── types.py            # Event types
-│   │
-│   └── protocols/               # Type Protocols (Python 3.8+)
-│       ├── __init__.py
-│       └── interfaces.py        # Runtime checkable protocols
-│
-├── tests/
-│   ├── __init__.py
-│   ├── conftest.py              # Pytest fixtures
-│   ├── unit/
-│   │   ├── test_base_assistant.py
-│   │   ├── test_executor.py
-│   │   ├── test_registry.py
-│   │   └── test_context.py
-│   ├── integration/
-│   │   ├── test_full_flow.py
-│   │   └── test_ability_execution.py
-│   └── fixtures/
-│       └── sample_data.py
-│
-├── examples/
-│   ├── basic_assistant.py
-│   ├── custom_ability.py
-│   ├── custom_llm.py
-│   └── memory_usage.py
-│
-├── docs/
-│   ├── index.md
-│   ├── quickstart.md
-│   ├── architecture.md
-│   ├── api/
-│   │   ├── interfaces.md
-│   │   ├── base.md
-│   │   └── models.md
-│   └── guides/
-│       ├── creating_abilities.md
-│       ├── custom_llm.md
-│       └── memory_backends.md
-│
-└── .github/
-    └── workflows/
-        ├── ci.yml
-        ├── publish.yml
-        └── docs.yml
-"""
+```bash
+pip install bruno-core
+```
 
+### Basic Usage
+
+```python
+import asyncio
+from bruno_core.base import BaseAssistant
+from bruno_core.models import Message, MessageRole
+
+# Import your LLM and Memory implementations
+from my_llm import MyLLM
+from my_memory import MyMemory
+
+async def main():
+    # Initialize components
+    llm = MyLLM(api_key="your-api-key")
+    memory = MyMemory()
+
+    # Create assistant
+    assistant = BaseAssistant(llm=llm, memory=memory)
+    await assistant.initialize()
+
+    # Process message
+    message = Message(role=MessageRole.USER, content="Hello, Bruno!")
+    response = await assistant.process_message(message)
+
+    print(response.text)
+
+asyncio.run(main())
+```
+
+## 📦 Core Components
+
+### Interfaces
+Define contracts for pluggable components:
+- **`AssistantInterface`**: Main orchestrator
+- **`LLMInterface`**: Language model providers
+- **`MemoryInterface`**: Storage backends
+- **`AbilityInterface`**: Executable actions
+
+### Base Implementations
+Ready-to-use implementations:
+- **`BaseAssistant`**: Coordinates LLM, memory, and abilities
+- **`BaseAbility`**: Template for creating custom abilities
+- **`ActionExecutor`**: Manages concurrent ability execution
+
+### Models (Pydantic v2)
+Type-safe data structures:
+- **`Message`**: Conversation messages with roles
+- **`ConversationContext`**: Session and user context
+- **`AbilityRequest/Response`**: Structured ability I/O
+
+### Plugin Registry
+Dynamic component discovery:
+- Scan entry points: `bruno.abilities`, `bruno.llm_providers`, `bruno.memory_backends`
+- Validate plugin classes
+- Lazy instantiation
+
+## 🔌 Creating a Custom Ability
+
+```python
+from bruno_core.base import BaseAbility
+from bruno_core.models import AbilityMetadata, AbilityRequest, AbilityResponse
+
+class CalculatorAbility(BaseAbility):
+    def get_metadata(self) -> AbilityMetadata:
+        return AbilityMetadata(
+            name="calculator",
+            description="Perform basic math operations",
+            parameters=[...],
+            examples=["Calculate 5 + 3"]
+        )
+
+    async def execute_action(self, request: AbilityRequest) -> AbilityResponse:
+        operation = request.parameters["operation"]
+        result = eval(f"{request.parameters['a']} {operation} {request.parameters['b']}")
+
+        return AbilityResponse(
+            request_id=request.id,
+            ability_name="calculator",
+            success=True,
+            data={"result": result}
+        )
+```
+
+Register in `pyproject.toml`:
+```toml
+[project.entry-points."bruno.abilities"]
+calculator = "my_package.abilities:CalculatorAbility"
+```
+
+## 🛠️ Development
+
+### Setup
+
+```bash
+# Clone repository
+git clone https://github.com/meggy-ai/bruno-core.git
+cd bruno-core
+
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# Install dev dependencies
+pip install -e ".[dev,test,docs]"
+
+# Install pre-commit hooks
+pre-commit install
+```
+
+### Testing
+
+```bash
+# Run all tests
+pytest
+
+# With coverage
+pytest --cov=bruno_core --cov-report=term-missing
+
+# Specific test file
+pytest tests/unit/test_base.py
+```
+
+### Code Quality
+
+```bash
+# Format code
+black bruno_core/ tests/ examples/
+
+# Type checking
+mypy bruno_core/
+
+# Linting
+ruff check bruno_core/
+```
+
+Pre-commit hooks automatically run formatting, linting, and type checking.
+
+## 📚 Documentation
+
+- **[Full Documentation](https://meggy-ai.github.io/bruno-core/)**
+- **[Quick Start Guide](https://meggy-ai.github.io/bruno-core/quickstart/)**
+- **[Architecture Overview](https://meggy-ai.github.io/bruno-core/architecture/)**
+- **[API Reference](https://meggy-ai.github.io/bruno-core/api/)**
+
+### Local Documentation
+
+```bash
+# Serve docs locally
+mkdocs serve
+
+# Build static site
+mkdocs build
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Commit Conventions
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
+- `feat:` New features
+- `fix:` Bug fixes
+- `docs:` Documentation changes
+- `test:` Test changes
+- `refactor:` Code restructuring
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## 🔗 Related Projects
+
+- **bruno-llm**: LLM provider implementations (OpenAI, Claude, Ollama)
+- **bruno-memory**: Memory backend implementations (SQLite, Redis, PostgreSQL)
+- **bruno-abilities**: Pre-built abilities (timers, notes, weather)
+- **bruno-pa**: Personal assistant application
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/meggy-ai/bruno-core/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/meggy-ai/bruno-core/discussions)
+- **Documentation**: [https://meggy-ai.github.io/bruno-core/](https://meggy-ai.github.io/bruno-core/)
+
+---
+
+Made with ❤️ by the Meggy AI team
