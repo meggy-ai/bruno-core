@@ -5,7 +5,6 @@ Provides a default implementation of AssistantInterface that coordinates
 LLM, memory, abilities, and other components.
 """
 
-import asyncio
 from typing import Any, Dict, List, Optional
 
 from bruno_core.interfaces.ability import AbilityInterface
@@ -13,11 +12,10 @@ from bruno_core.interfaces.assistant import AssistantInterface
 from bruno_core.interfaces.llm import LLMInterface
 from bruno_core.interfaces.memory import MemoryInterface
 from bruno_core.models.ability import AbilityRequest, AbilityResponse
-from bruno_core.models.context import ConversationContext, UserContext
+from bruno_core.models.context import ConversationContext
 from bruno_core.models.message import Message, MessageRole
-from bruno_core.models.response import (ActionResult, ActionStatus,
-                                        AssistantResponse)
-from bruno_core.utils.exceptions import AbilityError, BrunoError, RegistryError
+from bruno_core.models.response import ActionResult, ActionStatus, AssistantResponse
+from bruno_core.utils.exceptions import BrunoError, RegistryError
 from bruno_core.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -282,12 +280,14 @@ class BaseAssistant(AssistantInterface):
             health["status"] = "unhealthy"
 
         # Check abilities
+        abilities_health: Dict[str, Any] = {}
         for name, ability in self.abilities.items():
             try:
                 ability_health = await ability.health_check()
-                health["abilities"][name] = ability_health
+                abilities_health[name] = ability_health
             except Exception as e:
-                health["abilities"][name] = {"status": "error", "error": str(e)}
+                abilities_health[name] = {"status": "error", "error": str(e)}
+        health["abilities"] = abilities_health
 
         return health
 

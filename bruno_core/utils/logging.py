@@ -137,7 +137,7 @@ def log_error(
         ... except Exception as e:
         ...     logger.error("error_occurred", **log_error(e, {"user_id": "123"}))
     """
-    error_data = {
+    error_data: Dict[str, Any] = {
         "error_type": type(error).__name__,
         "error_message": str(error),
     }

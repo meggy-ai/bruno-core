@@ -7,8 +7,7 @@ Defines the contract for abilities (timer, music, notes, etc.).
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
-from bruno_core.models.ability import (AbilityMetadata, AbilityRequest,
-                                       AbilityResponse)
+from bruno_core.models.ability import AbilityMetadata, AbilityRequest, AbilityResponse
 
 
 class AbilityInterface(ABC):

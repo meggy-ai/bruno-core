@@ -46,8 +46,10 @@ class EventBus:
         self.enable_history = enable_history
         self.max_history = max_history
 
-        # Handlers by event type
-        self._handlers: Dict[EventType, List[Callable]] = defaultdict(list)
+        # Handlers by event type (stored as priority, handler tuples)
+        self._handlers: Dict[EventType, List[tuple[int, Callable[[Event], Any]]]] = defaultdict(
+            list
+        )
 
         # Wildcard handlers (receive all events)
         self._wildcard_handlers: List[Callable] = []
@@ -79,7 +81,8 @@ class EventBus:
             priority: Handler priority (higher = earlier execution)
         """
         # Store with priority
-        self._handlers[event_type].append((priority, handler))
+        handler_tuple: tuple[int, Callable[[Event], Any]] = (priority, handler)
+        self._handlers[event_type].append(handler_tuple)
 
         # Sort by priority (descending)
         self._handlers[event_type].sort(key=lambda x: x[0], reverse=True)
@@ -174,7 +177,9 @@ class EventBus:
             handlers = self._handlers.get(event.event_type, [])
 
             # Add wildcard handlers
-            wildcard_handlers = [(0, h) for h in self._wildcard_handlers]
+            wildcard_handlers: List[tuple[int, Callable[[Event], Any]]] = [
+                (0, h) for h in self._wildcard_handlers
+            ]
             all_handlers = handlers + wildcard_handlers
 
             # Execute handlers

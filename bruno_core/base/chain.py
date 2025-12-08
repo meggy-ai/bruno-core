@@ -73,7 +73,7 @@ class ChainExecutor:
         >>> results = await chain.execute(abilities, user_id="user_123")
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize chain executor."""
         self.steps: List[ChainStep] = []
         self.context: Dict[str, Any] = {}

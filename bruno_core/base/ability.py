@@ -8,9 +8,8 @@ from abc import abstractmethod
 from typing import Any, Dict, List
 
 from bruno_core.interfaces.ability import AbilityInterface
-from bruno_core.models.ability import (AbilityMetadata, AbilityParameter,
-                                       AbilityRequest, AbilityResponse)
-from bruno_core.utils.exceptions import AbilityError, ValidationError
+from bruno_core.models.ability import AbilityMetadata, AbilityRequest, AbilityResponse
+from bruno_core.utils.exceptions import AbilityError
 from bruno_core.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -33,7 +32,7 @@ class BaseAbility(AbilityInterface):
         ...         pass
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize base ability."""
         self.initialized = False
         self._metadata: AbilityMetadata = self.get_metadata()

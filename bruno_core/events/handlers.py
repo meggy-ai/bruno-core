@@ -5,7 +5,7 @@ Provides base classes for creating event handlers.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from bruno_core.events.types import Event, EventType
 from bruno_core.utils.logging import get_logger
@@ -28,7 +28,7 @@ class EventHandler(ABC):
         ...         print(f"Message: {event.message_id}")
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize event handler."""
         self.enabled = True
         logger.info("handler_created", handler=self.__class__.__name__)
@@ -112,7 +112,7 @@ class AsyncEventHandler(ABC):
         ...         await process_message(event.message_id)
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize async event handler."""
         self.enabled = True
         logger.info("async_handler_created", handler=self.__class__.__name__)
@@ -194,7 +194,9 @@ class FilteredEventHandler(EventHandler):
         ... )
     """
 
-    def __init__(self, event_types: List[EventType], filters: Optional[dict] = None):
+    def __init__(
+        self, event_types: List[EventType], filters: Optional[Dict[str, Any]] = None
+    ) -> None:
         """
         Initialize filtered handler.
 

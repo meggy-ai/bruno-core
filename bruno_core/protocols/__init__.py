@@ -18,10 +18,14 @@ Example:
     True
 """
 
-from bruno_core.protocols.interfaces import (AbilityProtocol,
-                                             AssistantProtocol,
-                                             EmbeddingProtocol, LLMProtocol,
-                                             MemoryProtocol, StreamProtocol)
+from bruno_core.protocols.interfaces import (
+    AbilityProtocol,
+    AssistantProtocol,
+    EmbeddingProtocol,
+    LLMProtocol,
+    MemoryProtocol,
+    StreamProtocol,
+)
 
 __all__ = [
     "AssistantProtocol",

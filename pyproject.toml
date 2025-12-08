@@ -114,6 +114,7 @@ ignore = [
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
 "examples/*.py" = ["E402", "F541"]
+"bruno_core/base/*.py" = ["F401"]
 
 [tool.mypy]
 python_version = "3.9"

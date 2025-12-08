@@ -5,11 +5,9 @@ Protocols provide structural subtyping (duck typing) with type safety.
 They allow classes to be compatible without explicit inheritance.
 """
 
-from typing import (Any, AsyncIterator, Dict, List, Optional, Protocol,
-                    runtime_checkable)
+from typing import Any, AsyncIterator, Dict, List, Optional, Protocol, runtime_checkable
 
-from bruno_core.models.ability import (AbilityMetadata, AbilityRequest,
-                                       AbilityResponse)
+from bruno_core.models.ability import AbilityMetadata, AbilityRequest, AbilityResponse
 from bruno_core.models.context import ConversationContext, SessionContext
 from bruno_core.models.memory import MemoryEntry, MemoryQuery
 from bruno_core.models.message import Message

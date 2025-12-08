@@ -118,7 +118,7 @@ class ActionExecutor:
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Convert exceptions to failed results
-        processed_results = []
+        processed_results: List[ActionResult] = []
         for i, result in enumerate(results):
             if isinstance(result, Exception):
                 processed_results.append(
@@ -128,7 +128,7 @@ class ActionExecutor:
                         error=str(result),
                     )
                 )
-            else:
+            elif isinstance(result, ActionResult):
                 processed_results.append(result)
 
         return processed_results

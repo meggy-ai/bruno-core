@@ -31,9 +31,16 @@ Example:
     >>> print(response.text)
 """
 
-from bruno_core.__version__ import (__author__, __author_email__,
-                                    __description__, __license__, __title__,
-                                    __url__, __version__, __version_info__)
+from bruno_core.__version__ import (
+    __author__,
+    __author_email__,
+    __description__,
+    __license__,
+    __title__,
+    __url__,
+    __version__,
+    __version_info__,
+)
 
 # Version will be importable as: from bruno_core import __version__
 __all__ = [
