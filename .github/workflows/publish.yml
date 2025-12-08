@@ -3,17 +3,13 @@ name: Publish to PyPI
 on:
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      test_pypi:
-        description: 'Publish to Test PyPI instead of PyPI'
-        required: false
-        type: boolean
-        default: true
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/bruno-core
 
     steps:
     - uses: actions/checkout@v4
@@ -23,55 +19,12 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install build dependencies
+    - name: Build and publish
       run: |
-        python -m pip install --upgrade pip
-        pip install build twine
-
-    - name: Build package
-      run: python -m build
-
-    - name: Check package
-      run: twine check dist/*
-
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: dist
-        path: dist/
-
-  publish-test:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.test_pypi == 'true'
-
-    steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: dist
-        path: dist/
-
-    - name: Publish to Test PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        repository-url: https://test.pypi.org/legacy/
-
-  publish-prod:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'release'
-    environment:
-      name: pypi
-      url: https://pypi.org/p/bruno-core
-
-    steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: dist
-        path: dist/
-
-    - name: Publish to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        python -m pip install --upgrade pip build twine
+        python -m build
+        twine check dist/*
+        twine upload dist/*
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
