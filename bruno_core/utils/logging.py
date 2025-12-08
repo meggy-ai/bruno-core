@@ -6,9 +6,10 @@ Provides structured logging using structlog.
 
 import logging
 import sys
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import structlog
+from structlog.typing import Processor
 
 
 def setup_logging(
@@ -38,6 +39,7 @@ def setup_logging(
     )
 
     # Configure processors based on format type
+    processors: List[Processor]
     if format_type == "json":
         processors = [
             structlog.contextvars.merge_contextvars,
